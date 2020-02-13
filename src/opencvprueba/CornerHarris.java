@@ -40,6 +40,7 @@ class CornerHarris {
     private JFrame frame;
     private JLabel imgLabel;
     private JLabel cornerLabel;
+    private ArrayList<Punto> listaPuntos;
     private static final int MAX_THRESHOLD = 255;
     private int threshold = 200;
     private static final Size BLUR_SIZE = new Size(3,3);
@@ -47,7 +48,8 @@ class CornerHarris {
 
     public CornerHarris() {
         /// Load source image and convert it to gray
-        String filename = "C:\\Users\\PC-PUBG\\Documents\\WERO\\TT2\\cuadrado.jpg";
+       
+        String filename = "C:\\Users\\PC-PUBG\\Documents\\WERO\\TT2\\engrane.jpg";
         Mat src = Imgcodecs.imread(filename);
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
@@ -145,6 +147,7 @@ class CornerHarris {
     }
 
     private void update() {
+         this.listaPuntos=new ArrayList<Punto>();
         dst = Mat.zeros(srcGray.size(), CvType.CV_32F);
 
         /// Detector parameters
@@ -166,14 +169,20 @@ class CornerHarris {
         for (int i = 0; i < dstNorm.rows(); i++) {
             for (int j = 0; j < dstNorm.cols(); j++) {
                 if ((int) dstNormData[i * dstNorm.cols() + j] > threshold) {
-                    Imgproc.circle(dstNormScaled, new Point(j, i), 5, new Scalar(0), 2, 8, 0);
-                    System.out.println("i: "+i+" j: "+j);
+                  //  Imgproc.circle(dstNormScaled, new Point(j, i), 5, new Scalar(0), 2, 8, 0);
+                    //System.out.println("i: "+i+" j: "+j);
+                    Punto p = new Punto(i,j);
+                    this.listaPuntos.add(p);                 
                 }
             }
         }
         
+        for(int i=0;i<this.listaPuntos.size();i++){
+            Imgproc.circle(dstNormScaled, new Point(this.listaPuntos.get(i).getX(),  this.listaPuntos.get(i).getY()), 5, new Scalar(0), 2, 8, 0);
+        }
         
-        Imgproc.circle(dstNormScaled, new Point(43, 246), 5, new Scalar(255,0,0), 2, 8, 0);
+        
+       /// Imgproc.circle(dstNormScaled, new Point(43, 246), 5, new Scalar(255,0,0), 2, 8, 0);
 
         cornerLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(dstNormScaled)));
         frame.repaint();
