@@ -3,13 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
+//cONVEX FULL
 package opencvprueba;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -49,7 +53,7 @@ class CornerHarris {
     public CornerHarris() {
         /// Load source image and convert it to gray
        
-        String filename = "C:\\Users\\PC-PUBG\\Documents\\WERO\\TT2\\engrane.jpg";
+        String filename = "C:\\Users\\PC-PUBG\\Documents\\WERO\\TT2\\cuadrado.jpg";
         Mat src = Imgcodecs.imread(filename);
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
@@ -169,24 +173,134 @@ class CornerHarris {
         for (int i = 0; i < dstNorm.rows(); i++) {
             for (int j = 0; j < dstNorm.cols(); j++) {
                 if ((int) dstNormData[i * dstNorm.cols() + j] > threshold) {
-                  //  Imgproc.circle(dstNormScaled, new Point(j, i), 5, new Scalar(0), 2, 8, 0);
-                    //System.out.println("i: "+i+" j: "+j);
+                   // Imgproc.circle(dstNormScaled, new Point(j, i), 5, new Scalar(0), 2, 8, 0);
+                    System.out.println("i: "+i+" j: "+j);
                     Punto p = new Punto(i,j);
                     this.listaPuntos.add(p);                 
                 }
             }
         }
         
-        for(int i=0;i<this.listaPuntos.size();i++){
-            Imgproc.circle(dstNormScaled, new Point(this.listaPuntos.get(i).getX(),  this.listaPuntos.get(i).getY()), 5, new Scalar(0), 2, 8, 0);
-        }
+        ///Limpiar los puntos
+        int array[] = new int[listaPuntos.size()];
         
         
-       /// Imgproc.circle(dstNormScaled, new Point(43, 246), 5, new Scalar(255,0,0), 2, 8, 0);
+            for(int i=0;i<this.listaPuntos.size();i++){ 
+                for(int j=i;j<this.listaPuntos.size();j++){
+                    if(array[j]==0)
+                    if(j!=i){
+                       if(distanciaEuclidiana(listaPuntos.get(i), listaPuntos.get(j))<=5){     
+                              array[j]=1;                                        
+                       }
+                    }
+                }           
+          }
+
+
+//  Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+//        map.put(listaPuntos.get(0).getX(), listaPuntos.get(0).getY());
+//  
+//              for(int i=1;i<this.listaPuntos.size();i++){ 
+//                for(int j=i;j<this.listaPuntos.size();j++){
+//                       if(map.get(listaPuntos.get(j-1).getX())){
+//                           
+//                       }
+//                    }
+//                }           
+          
+  
+        
+///Barridos en x and y
+   
+//        for(int i=0;i<this.listaPuntos.size();i++){
+//            for(int j=i;j<this.listaPuntos.size();j++){
+//                if(j!=i){
+//                    if((listaPuntos.get(j).getX()-listaPuntos.get(i).getX())<3&&listaPuntos.get(j).getX()-listaPuntos.get(i).getX()>=0){
+//                        array[j]=1;
+//                    }
+//                }
+//            }           
+//        }
+//        
+//        for(int i=0;i<this.listaPuntos.size();i++){
+//            for(int j=i;j<this.listaPuntos.size();j++){
+//                if(j!=i){
+//                    if((listaPuntos.get(j).getY()-listaPuntos.get(i).getY())<3&&listaPuntos.get(j).getY()-listaPuntos.get(i).getY()>=0){
+//                        array2[j]=1;
+//                    }
+//                }
+//            }           
+//        }
+        
+        
+//         for(int i=0;i<this.listaPuntos.size();i++){ 
+//            for(int j=i;j<this.listaPuntos.size();j++){
+//                if(j!=i){
+//                    if(distanciaEuclidiana(listaPuntos.get(i), listaPuntos.get(j))<10)
+//                    if(Math.abs(listaPuntos.get(j).getY()-listaPuntos.get(i).getY())<3){
+//                           if(array[j]==1){
+//                                array[j]=0;
+//                                cont--;
+//                           }
+//                    }
+//                }
+//            }           
+//        }
+        
+        //Imprimir puntos limpios
+        
+        System.out.println("Puntos: Iniciales:"+this.listaPuntos.size()+" Finales: "+(this.listaPuntos.size()));
+        
+          for(int i=0;i<this.listaPuntos.size();i++){ 
+            if(array[i]==0){
+                Imgproc.circle(dstNormScaled, new Point(listaPuntos.get(i).getY(), listaPuntos.get(i).getX()), 5, new Scalar(0), 2, 8, 0);
+                System.out.println("i: "+listaPuntos.get(i).getX()+" j: "+listaPuntos.get(i).getY());
+                  
+            } 
+//            if(array2[i]==0){
+//                 if(array[i]!=0)
+//                System.out.println("2i: "+listaPuntos.get(i).getX()+" j: "+listaPuntos.get(i).getY());
+//                  
+//            } 
+          }
+        
+        
+//        ArrayList<Punto> listaAux = (ArrayList<Punto>) this.listaPuntos.clone();
+//        ArrayList<Punto> puntosFinales = new ArrayList<>();
+//        
+//         for(int i=0;i<listaAux.size();i++){
+//              for(int j=0;j<listaAux.size();j++){
+//                  if(i!=j){
+//                      // System.out.println(listaAux.get(j).getX()-listaAux.get(i).getX());
+//                       //if(listaAux.get(j).getX()-listaAux.get(i).getX()<3){
+//                           
+//                          
+////                            if(distanciaEuclidiana(listaAux.get(i), listaAux.get(j))>10){
+////                                listaAux.remove(j);
+////                            }
+//                       //}
+//                 }          
+//            }
+//        }
+        
+        
+//        for(int i=0;i<listaAux.size();i++){
+//            Imgproc.circle(dstNormScaled, new Point(listaAux.get(i).getX(),  listaAux.get(i).getY()), 5, new Scalar(0), 2, 8, 0);
+//        }
+        
+//        System.out.println("Elemntos sin eliminar: "+this.listaPuntos.size());
+//        System.out.println("Elemntos eliminados: "+listaAux.size());
+        
+        Imgproc.circle(dstNormScaled, new Point(43, 246), 5, new Scalar(255,0,0), 2, 8, 0);
 
         cornerLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(dstNormScaled)));
         frame.repaint();
     }
+    
+       
+    private double distanciaEuclidiana(Punto a, Punto b){
+        return Math.sqrt(Math.pow((double)a.getX()-b.getX(),2)+Math.pow((double)a.getY()-b.getY(),2));
+    }    
     
         public static void main(String[] args) {
         // Load the native OpenCV library
@@ -200,7 +314,12 @@ class CornerHarris {
                 new CornerHarris();
             }
         });
-    }    
+       
+            //System.out.println(CornerHarris.distanciaEuclidiana(new Punto(2,2), new Punto(4,4)));
+
+    }
+    
+        
 }
 
 
