@@ -16,8 +16,12 @@ public class Prueba {
     } 
       
     public static void main(String args[]){
-        Prueba p = new Prueba();
-        System.out.println(p.distanciaEuclidiana(new Punto(9,11), new Punto(9,199)));    
+       // Prueba p = new Prueba();
+       // System.out.println(p.distanciaEuclidiana(new Punto(9,11), new Punto(9,199)));
+       
+       for(int i=1;i<125;i++){
+           System.out.println("f "+i+" "+(i+1)+" "+(i+2)+" "+(i+3));
+       }
     }
     
 }
