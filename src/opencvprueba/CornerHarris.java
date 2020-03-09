@@ -36,6 +36,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 class CornerHarris {
+   // Mat src = new Mat();
     private Mat srcGray = new Mat();
     private Mat srcFiltrado = new Mat();
     private Mat dst = new Mat();
@@ -49,41 +50,44 @@ class CornerHarris {
     private int threshold = 200;
     private static final Size BLUR_SIZE = new Size(3,3);
     private static final Size Filtrado_Size = new Size(5,5);
+    private ArrayList<Referencia> a = new ArrayList<>();
 
     public CornerHarris() {
         /// Load source image and convert it to gray
        
-        String filename = "C:\\Users\\PC-PUBG\\Documents\\WERO\\TT2\\pe.jpg";
-        Mat src = Imgcodecs.imread(filename);
+        String filename = "C:\\Users\\PC-PUBG\\Documents\\WERO\\TT2\\engrane.jpg";
+            Mat src = Imgcodecs.imread(filename);
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
             System.exit(0);
         }
+      
 
         Imgproc.cvtColor(src, srcGray, Imgproc.COLOR_BGR2GRAY);
        // Imgproc.GaussianBlur(srcGray, srcFiltrado, Filtrado_Size, 0);
-          Imgproc.medianBlur(srcGray, srcFiltrado, 5);
+        Imgproc.medianBlur(srcGray, srcFiltrado, 5);
         //Aplicar el filtro canny
         Imgproc.Canny(srcFiltrado, srcGray, 50, 150);
         
-        ///Para buscar circulos 
-        Mat circleOut = new Mat();
-        Imgproc.HoughCircles(srcFiltrado, circleOut, Imgproc.HOUGH_GRADIENT, (double)srcFiltrado.rows()/16, 100.0, 30.0, 1, 30);
         
-        for(int x=0;x<1;x++){
-            double[] c = circleOut.get(0, x);
-            
-            //Centro del circulo
-               Point centro = new Point(Math.round(c[0]), Math.round(c[1]));
-               Imgproc.circle(src, centro, 1, new Scalar(0,100,100),3,8,0);
-              ///
-              
-              
-              int radio = (int) Math.round(c[2]);
-              Imgproc.circle(src, centro, radio, new Scalar(255,0,255),3,8,0);          
-        }
+        ///Para buscar y dibujar circulos 
+//        Mat circleOut = new Mat();
+//        Imgproc.HoughCircles(srcFiltrado, circleOut, Imgproc.HOUGH_GRADIENT, (double)srcFiltrado.rows()/16, 100.0, 30.0, 1, 30);
+//        
+//        for(int x=0;x<1;x++){
+//            double[] c = circleOut.get(0, x);
+//            
+//            //Centro del circulo
+//               Point centro = new Point(Math.round(c[0]), Math.round(c[1]));
+//               Imgproc.circle(src, centro, 1, new Scalar(0,100,100),3,8,0);
+//              ///
+//              
+//              
+//              int radio = (int) Math.round(c[2]);
+//              Imgproc.circle(src, centro, radio, new Scalar(255,0,255),3,8,0);          
+//        }
         
-
+             
 
         // Create and set up the window.
         frame = new JFrame("Harris corner detector demo");
@@ -204,70 +208,95 @@ class CornerHarris {
            System.out.println("Umbral: "+this.threshold);
             
            
-           generarCaras();
-       // Imgproc.circle(dstNormScaled, new Point(43, 246), 5, new Scalar(255,0,0), 2, 8, 0);
+          // generarCaras();
+      Imgproc.circle(dstNormScaled, new Point(72, 190), 5, new Scalar(255,0,0), 2, 8, 0);
+      Imgproc.circle(dstNormScaled, new Point(69, 244), 5, new Scalar(255,0,0), 2, 8, 0);
+       
+       this.generarCaras();
+       //this.obtenerPixeles();
+       
 
         cornerLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(dstNormScaled)));
         frame.repaint();
     }
     
        
-    private double distanciaEuclidiana(Punto a, Punto b){
-        return Math.sqrt(Math.pow((double)a.getX()-b.getX(),2)+Math.pow((double)a.getY()-b.getY(),2));
-    }
+    
 
 
-     public void generarCaras(){
+     private void generarCaras(){
          
-         for(int j=0;j<this.listaPuntos.size()-3;j++){
-             
-         double c[] = new double[3];
-         int a1=j+1,a2=j+2,a3=j+3;
-         
-         c[0] = this.distanciaEuclidiana(this.listaPuntos.get(j), this.listaPuntos.get(j+1));
-         c[1] = this.distanciaEuclidiana(this.listaPuntos.get(j), this.listaPuntos.get(j+2));
-         c[2] = this.distanciaEuclidiana(this.listaPuntos.get(j), this.listaPuntos.get(j+3));
-         
-         c = this.ordenar(c);
-         
-         for(int i=0;i<this.listaPuntos.size()-1;i++){
-             if(j!=a1&&j!=a2&&j!=a3&&i!=j){
-                 double aux =  this.distanciaEuclidiana(this.listaPuntos.get(0), this.listaPuntos.get(i));         
-                 if(aux<c[2]){
-                     if(aux<c[0]){
-                         c[0]=aux;
-                          a1=i;
-                     }else if(aux<c[1]&&aux>=c[0]){
-                          c[1]=aux;
-                          a2=i;
-                     }else{
-                         c[2]=aux;
-                         a3=i;
-                     }
-                 }    
+         for(int i=0;i<this.listaPuntos.size();i++){
+            this.a.clear(); 
+             for(int j=0;j<this.listaPuntos.size();j++){
+                 if(j!=i){
+                    a.add(new Referencia(j, CornerHarris.distanciaEuclidiana(this.listaPuntos.get(i), this.listaPuntos.get(j))));
+                 }
              }
-              
-          }
-         
-             System.out.println("f "+(j+1)+" "+(a1+1)+" "+(a2+1)+" "+(a3+1));
-         
-        }
+             ///Ordenar todos los puntos de menor a Mayor
+             this.ordenar();
+             
+             //Elegir los tres puntos más cercanos y validar  valor RGB
+             validarCara(i);
+                          
+       }
+                
      } 
      
-     
-     
-      
-     public double[] ordenar(double a[]){ 
-         for (int i=0; i < a.length-1;i++){
-              for(int j=0; j < a.length-1;j++){
-                  if (a[j]>a[j+1]){
-                    double aux = a[j];
-                    a[j] = a[j+1];
-                    a[j+1] = aux;
+    
+    private void validarCara(int ref){
+        Punto puntoRef = this.listaPuntos.get(ref);
+        for(int i=0;i<3;i++){
+            Punto aux = this.listaPuntos.get(this.a.get(i).getRefencia());    
+            ///Validar que no se encuentren en los mismo valores de x y y o dentro de un rangpo +- 5
+            if(((puntoRef.getX()<=aux.getX()+5)&&(puntoRef.getX()>=aux.getX()-5))||((puntoRef.getY()<=aux.getY()+5)&&(puntoRef.getY()>=aux.getY()-5))){
+                 //Aqui se cumplen las ca´racteristicas para validar por color y utilizar el punto medio 
+                 System.out.println("Aqui se cumplen las caracteristicas");
+                 System.out.println("Ref "+puntoRef.toString());
+                 System.out.println("Aux "+aux.toString());
+                 
+                 double[] c1 = this.srcFiltrado.get(puntoRef.getY(), puntoRef.getX());
+                 double[] c2 = this.srcFiltrado.get(aux.getY(), aux.getX());
+                 
+                 System.out.println("");
+                 //Promediar el valor 
+                 c1[0]=(c1[0]+c2[0])/2;
+                // c1[1]=(c1[1]+c2[1])/2;
+                // c1[2]=(c1[2]+c2[2])/2;
+                 
+                 System.out.println("");
+                 
+            }    
+        }
+    }
+    
+    private void obtenerPixeles(){
+        for(int i=0;i<this.srcFiltrado.cols();i++){
+            for(int j=0;j<this.srcFiltrado.rows();j++){
+                 double[] c1 = this.srcFiltrado.get(i, j);
+            }
+        }
+    }
+    
+     private  void ordenar(){ 
+         for (int i=0; i < a.size()-1;i++){
+              for(int j=0; j < a.size()-1;j++){
+                  if (a.get(j).getDistancia()>a.get(j+1).getDistancia()){
+                    Referencia aux = a.get(j);
+                    a.set(j, a.get(j+1));
+                    a.set(j+1, aux);
                   }
-               }
+              }
          }
-         return a;
+    }
+     
+     
+     public static double distanciaEuclidiana(Punto a, Punto b){
+        return Math.sqrt(Math.pow((double)a.getX()-b.getX(),2)+Math.pow((double)a.getY()-b.getY(),2));
+    }
+    
+    public static Punto puntoMedio(Punto a, Punto b){
+        return new Punto(Math.round((a.getX()+b.getX())/2), Math.round((a.getY()+b.getY())/2));
     }
     
      
@@ -289,6 +318,5 @@ class CornerHarris {
     
         
 }
-
 
 
