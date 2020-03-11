@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-//cONVEX FULL
+
 package opencvprueba;
+ //
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -53,9 +54,8 @@ class CornerHarris {
     private ArrayList<Referencia> a = new ArrayList<>();
 
     public CornerHarris() {
-        /// Load source image and convert it to gray
-       
-        String filename = "C:\\Users\\PC-PUBG\\Documents\\WERO\\TT2\\engrane.jpg";
+        /// Load source image and convert it to gray  
+        String filename = "C:\\Users\\PC-PUBG\\Documents\\WERO\\TT2\\llave12.jpg";
             Mat src = Imgcodecs.imread(filename);
         if (src.empty()) {
             System.err.println("Cannot read image: " + filename);
@@ -163,7 +163,8 @@ class CornerHarris {
         // System.out.println("Hola");
         for (int i = 0; i < dstNorm.rows(); i++) {
             for (int j = 0; j < dstNorm.cols(); j++) {
-                if ((int) dstNormData[i * dstNorm.cols() + j] > this.threshold) {
+                //Para cambiar el umbral
+                if ((int) dstNormData[i * dstNorm.cols() + j] > 43) {
                    // Imgproc.circle(dstNormScaled, new Point(j, i), 5, new Scalar(0), 2, 8, 0);
                     ///System.out.println("i: "+i+" j: "+j);
                     Punto p = new Punto(i,j);
@@ -173,6 +174,7 @@ class CornerHarris {
         }
         
         ///Limpiar los puntos
+        //Con este array tenemos que generar otro que tenga solo los puntos limpias jeje saludos
         int array[] = new int[listaPuntos.size()];
         
         
@@ -191,33 +193,40 @@ class CornerHarris {
 
         
         //Imprimir puntos limpios
+        ArrayList<Punto> ptoLimpio = new ArrayList<>();
         
-       
         int cont=0;
           for(int i=0;i<this.listaPuntos.size();i++){ 
             if(array[i]==0){
                 Imgproc.circle(dstNormScaled, new Point(listaPuntos.get(i).getY(), listaPuntos.get(i).getX()), 5, new Scalar(0), 2, 8, 0);
                 System.out.println("v "+listaPuntos.get(i).getX()+" "+listaPuntos.get(i).getY()+" 0");
                   //System.out.println("("+listaPuntos.get(i).getX()+","+listaPuntos.get(i).getY()+")");
+                  ptoLimpio.add(listaPuntos.get(i));
                   cont++;
             } 
 
           }
           
+          listaPuntos.clear();
+          listaPuntos = ptoLimpio;
+          ptoLimpio = null;
+          
+          System.out.println("");
            System.out.println("Puntos: Iniciales:"+this.listaPuntos.size()+" Finales: "+cont);
            System.out.println("Umbral: "+this.threshold);
             
            
           // generarCaras();
-      Imgproc.circle(dstNormScaled, new Point(72, 190), 5, new Scalar(255,0,0), 2, 8, 0);
-      Imgproc.circle(dstNormScaled, new Point(69, 244), 5, new Scalar(255,0,0), 2, 8, 0);
+      Imgproc.circle(dstNormScaled, new Point(88, 145), 5, new Scalar(255,0,0), 2, 8, 0);
+     // Imgproc.circle(dstNormScaled, new Point(69, 244), 5, new Scalar(255,0,0), 2, 8, 0);
        
-       this.generarCaras();
-       //this.obtenerPixeles();
+      
+      // this.obtenerPixeles();
        
 
         cornerLabel.setIcon(new ImageIcon(HighGui.toBufferedImage(dstNormScaled)));
         frame.repaint();
+         this.generarCaras();
     }
     
        
@@ -225,6 +234,7 @@ class CornerHarris {
 
 
      private void generarCaras(){
+         System.out.println("Tamaño: "+listaPuntos.size());
          
          for(int i=0;i<this.listaPuntos.size();i++){
             this.a.clear(); 
@@ -235,45 +245,71 @@ class CornerHarris {
              }
              ///Ordenar todos los puntos de menor a Mayor
              this.ordenar();
+         
              
              //Elegir los tres puntos más cercanos y validar  valor RGB
-             validarCara(i);
+            ArrayList<Integer> a = validarCara(i);
+            if(a.size()>1)
+            System.out.print("f "); 
+            for(int k=0;k<a.size();k++){
+                if(a.size()<=1){
+                    break;
+                }
+                System.out.print(a.get(k)+" "); 
+            }
+            if(a.size()>1)
+            System.out.println("");
                           
-       }
-                
+         }          
      } 
      
     
-    private void validarCara(int ref){
+    private ArrayList<Integer> validarCara(int ref){
+        ArrayList<Integer> lisPuntos = new ArrayList<Integer>();
+        lisPuntos.add(ref);
         Punto puntoRef = this.listaPuntos.get(ref);
-        for(int i=0;i<3;i++){
-            Punto aux = this.listaPuntos.get(this.a.get(i).getRefencia());    
+        for(int i=0;i<a.size();i++){
+                   
+            Punto aux = this.listaPuntos.get(this.a.get(i).getRefencia());
             ///Validar que no se encuentren en los mismo valores de x y y o dentro de un rangpo +- 5
             if(((puntoRef.getX()<=aux.getX()+5)&&(puntoRef.getX()>=aux.getX()-5))||((puntoRef.getY()<=aux.getY()+5)&&(puntoRef.getY()>=aux.getY()-5))){
                  //Aqui se cumplen las ca´racteristicas para validar por color y utilizar el punto medio 
-                 System.out.println("Aqui se cumplen las caracteristicas");
-                 System.out.println("Ref "+puntoRef.toString());
-                 System.out.println("Aux "+aux.toString());
-                 
-                 double[] c1 = this.srcFiltrado.get(puntoRef.getY(), puntoRef.getX());
-                 double[] c2 = this.srcFiltrado.get(aux.getY(), aux.getX());
-                 
+                 double[] c1 = this.obtenerValorPixel(puntoRef);
+                 double[] c2 = this.obtenerValorPixel(aux);   
+                     c1[0]=(c1[0]+c2[0])/2;
+                     
+                 Punto puntoMedio = CornerHarris.puntoMedio(aux, puntoRef);
+                 double[] rgbAux = this.obtenerValorPixel(puntoMedio);
+                 System.out.println("RGB PM "+rgbAux[0]);
+                 System.out.println("RGB P1 "+c1[0]);
+                 System.out.println("RGB P2 "+c2[0]);
                  System.out.println("");
-                 //Promediar el valor 
-                 c1[0]=(c1[0]+c2[0])/2;
-                // c1[1]=(c1[1]+c2[1])/2;
-                // c1[2]=(c1[2]+c2[2])/2;
-                 
-                 System.out.println("");
-                 
+                 if(rgbAux[0]<= c1[0]+15&&rgbAux[0]>=c1[0]-15){
+                       lisPuntos.add(this.a.get(i).getRefencia());
+                 }
             }    
         }
+        
+        return lisPuntos;
+    }
+    
+    private double[] obtenerValorPixel(Punto p){
+        double[] img = {255};
+        double aux[] = this.srcFiltrado.get(p.getY(), p.getX());
+       
+        if(aux==null){
+            return img;
+        }
+        else
+            return aux;                          
     }
     
     private void obtenerPixeles(){
+        System.out.println("Hola");
         for(int i=0;i<this.srcFiltrado.cols();i++){
             for(int j=0;j<this.srcFiltrado.rows();j++){
                  double[] c1 = this.srcFiltrado.get(i, j);
+                 System.out.println("PX: "+c1[0]);
             }
         }
     }
@@ -318,5 +354,3 @@ class CornerHarris {
     
         
 }
-
-

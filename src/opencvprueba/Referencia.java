@@ -38,8 +38,5 @@ public class Referencia {
 
     public void setDistancia(double distancia) {
         this.distancia = distancia;
-    }
-    
-    
-    
+    }  
 }
